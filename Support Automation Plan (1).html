@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Support Work Scope & IT Planning</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #F5F5F3; color: #1a1a1a; min-height: 100vh; padding: 2rem 1rem 4rem; }
+  .page { max-width: 860px; margin: 0 auto; }
+  .page-title { font-size: 22px; font-weight: 500; margin-bottom: 1rem; }
+  .global-toolbar {
+    display: flex; align-items: center; gap: 3px; flex-wrap: wrap;
+    padding: 6px 10px; background: #ffffff;
+    border: 1px solid #e0e0e0; border-radius: 8px;
+    margin-bottom: 1rem; position: sticky; top: 8px; z-index: 10;
+    user-select: none; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .tb-btn { min-width: 28px; height: 28px; border: none; background: transparent; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: 500; color: #555; display: flex; align-items: center; justify-content: center; transition: background 0.15s; padding: 0 6px; font-family: inherit; }
+  .tb-btn:hover { background: #f0f0f0; color: #111; }
+  .tb-sep { width: 1px; height: 16px; background: #e0e0e0; margin: 0 4px; flex-shrink: 0; }
+  .color-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; flex-shrink: 0; transition: transform 0.15s; }
+  .color-dot:hover { transform: scale(1.2); }
+  .color-dot.selected { border-color: #1a1a1a; }
+  .font-size-wrap { display: flex; align-items: center; gap: 2px; }
+  .fs-btn { width: 22px; height: 22px; border: 1px solid #d0d0d0; background: transparent; border-radius: 4px; cursor: pointer; font-size: 13px; color: #555; display: flex; align-items: center; justify-content: center; font-family: inherit; }
+  .fs-btn:hover { background: #f0f0f0; }
+  .fs-display { min-width: 30px; text-align: center; font-size: 12px; color: #666; }
+  .toolbar-hint { font-size: 11px; color: #aaa; margin-left: auto; white-space: nowrap; }
+  .progress-wrap { margin-bottom: 1.25rem; }
+  .progress-bar { height: 5px; background: #e0e0e0; border-radius: 4px; overflow: hidden; }
+  .progress-fill { height: 100%; background: #4A6CF7; border-radius: 4px; transition: width 0.4s ease; }
+  .progress-label { font-size: 12px; color: #888; margin-top: 5px; text-align: right; }
+  .std-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; margin-bottom: 10px; overflow: hidden; transition: border-color 0.2s; }
+  .std-card:hover { border-color: #bbb; }
+  .std-header { display: flex; align-items: center; gap: 12px; padding: 14px 16px; cursor: pointer; user-select: none; }
+  .std-badge { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; flex-shrink: 0; }
+  .std-title { flex: 1; font-size: 14px; font-weight: 500; }
+  .chip { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 100px; font-weight: 500; flex-shrink: 0; }
+  .chip-todo { background: #f0f0f0; color: #888; border: 1px solid #ddd; }
+  .chip-partial { background: #FFF8E7; color: #A07000; border: 1px solid #F0D080; }
+  .chip-done { background: #EAF5F0; color: #1A7A52; border: 1px solid #A0D8BF; }
+  .chevron { font-size: 10px; color: #aaa; transition: transform 0.25s; margin-left: 6px; }
+  .chevron.open { transform: rotate(180deg); }
+  .std-body { border-top: 1px solid #eee; padding: 14px 16px 16px; display: none; background: #fff; }
+  .std-body.open { display: block; }
+  .section-item { margin-bottom: 14px; }
+  .section-label { font-size: 11px; font-weight: 500; color: #888; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+  .editor-area { display: block; width: 100%; min-height: 80px; padding: 8px 10px; font-size: 13px; font-family: inherit; color: #1a1a1a; background-color: #f5f5f3; border: 1px solid #d0d0d0; border-radius: 6px; outline: none; line-height: 1.6; word-break: break-word; transition: border-color 0.2s; }
+  .editor-area:focus { border-color: #4A6CF7; background-color: #ffffff; }
+  .editor-area:empty:before { content: attr(data-placeholder); color: #bbb; pointer-events: none; }
+  .action-bar { display: flex; gap: 8px; margin-top: 1.5rem; flex-wrap: wrap; }
+  .btn { padding: 8px 16px; font-size: 13px; border-radius: 8px; cursor: pointer; font-family: inherit; border: 1px solid #ccc; background: #fff; color: #1a1a1a; transition: background 0.2s; }
+  .btn:hover { background: #f0f0f0; }
+  .btn-primary { background: #4A6CF7; color: #fff; border-color: transparent; }
+  .btn-primary:hover { background: #3a5ce6; }
+  .export-box { display: none; margin-top: 1.5rem; background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 16px; }
+  .export-title { font-size: 13px; font-weight: 500; margin-bottom: 8px; }
+  .export-box textarea { width: 100%; min-height: 200px; font-family: monospace; font-size: 12px; color: #333; background: #fafafa; border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px; resize: vertical; outline: none; }
+  .copy-tip { font-size: 12px; color: #888; margin-top: 6px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="page-title">Student Support Work Scope & IT Planning</div>
+  <div class="global-toolbar" id="gtb">
+    <button class="tb-btn" id="tb-bold" title="加粗"><b>B</b></button>
+    <button class="tb-btn" id="tb-italic" title="斜体"><i>I</i></button>
+    <button class="tb-btn" id="tb-under" title="下划线" style="text-decoration:underline">U</button>
+    <div class="tb-sep"></div>
+    <div class="font-size-wrap">
+      <button class="fs-btn" id="fs-down">−</button>
+      <span class="fs-display" id="fs-label">13</span>
+      <button class="fs-btn" id="fs-up">+</button>
+    </div>
+    <div class="tb-sep"></div>
+    <div class="color-dot selected" id="dot-0" title="默认" style="background:#888"></div>
+    <div class="color-dot" id="dot-1" title="红" style="background:#E24B4A"></div>
+    <div class="color-dot" id="dot-2" title="橙" style="background:#F0A500"></div>
+    <div class="color-dot" id="dot-3" title="绿" style="background:#2E9B6B"></div>
+    <div class="color-dot" id="dot-4" title="蓝" style="background:#185FA5"></div>
+    <div class="color-dot" id="dot-5" title="紫" style="background:#6D28D9"></div>
+    <div class="tb-sep"></div>
+    <button class="tb-btn" id="tb-clear" style="font-size:11px">✕</button>
+    <span class="toolbar-hint" id="toolbar-hint">点击文本框开始编辑</span>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="prog" style="width:0%"></div></div>
+    <div class="progress-label" id="prog-label">0 / 10 已完成</div>
+  </div>
+  <div id="cards"></div>
+  <div class="action-bar">
+    <button class="btn" onclick="expandAll()">展开全部</button>
+    <button class="btn" onclick="collapseAll()">收起全部</button>
+    <button class="btn" onclick="clearAll()">清空内容</button>
+    <button class="btn btn-primary" onclick="exportContent()">导出内容</button>
+  </div>
+  <div class="export-box" id="export-box">
+    <div class="export-title">已导出内容（复制后发给 Claude）</div>
+    <textarea id="export-text" readonly></textarea>
+    <div class="copy-tip">点击文本框 → Ctrl+A 全选 → Ctrl+C 复制，然后粘贴给 Claude</div>
+    <button class="btn btn-primary" style="margin-top:8px;" onclick="copyExport()">一键复制</button>
+  </div>
+</div>
+<script>
+const standards=[{num:1,title:"Marketing information and practices",bg:"#EDE9FE",color:"#5B3FBE"},{num:2,title:"Recruitment of an overseas student",bg:"#E0F2FE",color:"#0C5A8A"},{num:3,title:"Formalisation of enrolment and written agreements",bg:"#E6F9F0",color:"#0F6E56"},{num:4,title:"Education Agents",bg:"#FFF7E6",color:"#854F0B"},{num:5,title:"Younger overseas students",bg:"#FEF0F0",color:"#A32D2D"},{num:6,title:"Overseas student support services",bg:"#F3E8FF",color:"#6D28D9"},{num:7,title:"Overseas student transfers",bg:"#E0F7FA",color:"#0F6E56"},{num:8,title:"Overseas student visa requirements",bg:"#EDE9FE",color:"#5B3FBE"},{num:9,title:"Deferring, suspending or cancelling the overseas student's enrolment",bg:"#FFF7E6",color:"#854F0B"},{num:10,title:"Complaints and appeals",bg:"#FEF0F0",color:"#A32D2D"}];
+const sections=[{key:"workflow",label:"Existing Workflow Analysis"},{key:"painpoint",label:"Pain Point Identification"},{key:"automation",label:"Automation Opportunities"},{key:"feasibility",label:"Feasibility"}];
+const colorMap=[{id:"dot-0",val:null},{id:"dot-1",val:"#E24B4A"},{id:"dot-2",val:"#F0A500"},{id:"dot-3",val:"#2E9B6B"},{id:"dot-4",val:"#185FA5"},{id:"dot-5",val:"#6D28D9"}];
+const fontSizes=[11,12,13,14,16,18,20,24,28,32];
+let currentFsIdx=2;
+const data={};
+standards.forEach(s=>{data[s.num]={};sections.forEach(sec=>{data[s.num][sec.key]="";});});
+try{const saved=localStorage.getItem("esos_v3");if(saved)Object.assign(data,JSON.parse(saved));}catch(e){}
+let activeEditor=null,savedRange=null;
+function save(){try{localStorage.setItem("esos_v3",JSON.stringify(data));}catch(e){}}
+function captureRange(){const sel=window.getSelection();if(sel&&sel.rangeCount>0&&activeEditor){const r=sel.getRangeAt(0);if(activeEditor.contains(r.commonAncestorContainer))savedRange=r.cloneRange();}}
+function applyRange(){if(!savedRange||!activeEditor)return false;try{activeEditor.focus();const sel=window.getSelection();sel.removeAllRanges();sel.addRange(savedRange);return true;}catch(e){return false;}}
+function execFmt(cmd,val){if(!applyRange())return;val!==undefined?document.execCommand(cmd,false,val):document.execCommand(cmd);captureRange();}
+function updateFsLabel(){document.getElementById("fs-label").textContent=fontSizes[currentFsIdx];}
+function applyFs(idx){execFmt("fontSize",7);if(activeEditor)activeEditor.querySelectorAll('font[size="7"]').forEach(el=>{el.removeAttribute("size");el.style.fontSize=fontSizes[idx]+"px";});}
+document.getElementById("tb-bold").addEventListener("mousedown",e=>{e.preventDefault();execFmt("bold");});
+document.getElementById("tb-italic").addEventListener("mousedown",e=>{e.preventDefault();execFmt("italic");});
+document.getElementById("tb-under").addEventListener("mousedown",e=>{e.preventDefault();execFmt("underline");});
+document.getElementById("tb-clear").addEventListener("mousedown",e=>{e.preventDefault();execFmt("removeFormat");});
+document.getElementById("fs-up").addEventListener("mousedown",e=>{e.preventDefault();if(currentFsIdx<fontSizes.length-1)currentFsIdx++;updateFsLabel();applyFs(currentFsIdx);});
+document.getElementById("fs-down").addEventListener("mousedown",e=>{e.preventDefault();if(currentFsIdx>0)currentFsIdx--;updateFsLabel();applyFs(currentFsIdx);});
+colorMap.forEach(c=>{document.getElementById(c.id).addEventListener("mousedown",e=>{e.preventDefault();execFmt(c.val?"foreColor":"removeFormat",c.val||undefined);document.querySelectorAll(".color-dot").forEach(d=>d.classList.remove("selected"));document.getElementById(c.id).classList.add("selected");});});
+function filledCount(num){return sections.filter(s=>(data[num][s.key]||"").replace(/<[^>]*>/g,"").trim().length>0).length;}
+function getStatus(num){const n=filledCount(num);return n===0?"todo":n===sections.length?"done":"partial";}
+function updateProgress(){const done=standards.filter(s=>getStatus(s.num)==="done").length;document.getElementById("prog").style.width=Math.round(done/10*100)+"%";document.getElementById("prog-label").textContent=done+" / 10 已完成";}
+function updateCardChip(num){const st=getStatus(num);const chip=document.getElementById("chip-"+num);chip.className="chip chip-"+st;chip.textContent=st==="done"?"已完成":st==="partial"?"填写中":"未填写";}
+function renderCards(){
+  const container=document.getElementById("cards");container.innerHTML="";
+  standards.forEach(s=>{
+    const card=document.createElement("div");card.className="std-card";
+    const header=document.createElement("div");header.className="std-header";header.onclick=()=>toggleCard(s.num);
+    header.innerHTML=`<div class="std-badge" style="background:${s.bg};color:${s.color}">S${s.num}</div><div class="std-title">Standard ${s.num}: ${s.title}</div><span class="chip chip-todo" id="chip-${s.num}">未填写</span><span class="chevron" id="chev-${s.num}">▼</span>`;
+    card.appendChild(header);
+    const body=document.createElement("div");body.className="std-body";body.id="body-"+s.num;
+    sections.forEach(sec=>{
+      const item=document.createElement("div");item.className="section-item";
+      const lbl=document.createElement("div");lbl.className="section-label";lbl.textContent=sec.label;item.appendChild(lbl);
+      const editor=document.createElement("div");editor.className="editor-area";editor.contentEditable="true";
+      editor.dataset.std=s.num;editor.dataset.key=sec.key;editor.dataset.placeholder="在此填写...";
+      if(data[s.num][sec.key])editor.innerHTML=data[s.num][sec.key];
+      editor.addEventListener("focus",function(){activeEditor=this;const secObj=sections.find(x=>x.key===this.dataset.key);document.getElementById("toolbar-hint").textContent="S"+this.dataset.std+" · "+(secObj?secObj.label:"");});
+      editor.addEventListener("mouseup",captureRange);editor.addEventListener("keyup",captureRange);
+      editor.addEventListener("input",function(){const num=parseInt(this.dataset.std);data[num][this.dataset.key]=this.innerHTML;save();updateCardChip(num);updateProgress();});
+      item.appendChild(editor);body.appendChild(item);
+    });
+    card.appendChild(body);container.appendChild(card);updateCardChip(s.num);
+  });
+}
+function toggleCard(num){document.getElementById("body-"+num).classList.toggle("open");document.getElementById("chev-"+num).classList.toggle("open");}
+function expandAll(){standards.forEach(s=>{document.getElementById("body-"+s.num).classList.add("open");document.getElementById("chev-"+s.num).classList.add("open");});}
+function collapseAll(){standards.forEach(s=>{document.getElementById("body-"+s.num).classList.remove("open");document.getElementById("chev-"+s.num).classList.remove("open");});}
+function clearAll(){if(!confirm("确定要清空所有内容吗？"))return;standards.forEach(s=>sections.forEach(sec=>{data[s.num][sec.key]="";}));save();renderCards();updateProgress();document.getElementById("export-box").style.display="none";}
+function exportContent(){let out="# Student Support Work Scope & IT Planning\n\n";standards.forEach(s=>{out+="## Standard "+s.num+": "+s.title+"\n\n";sections.forEach(sec=>{const el=document.querySelector('[data-std="'+s.num+'"][data-key="'+sec.key+'"]');const txt=el?el.innerText.trim():(data[s.num][sec.key]||"").replace(/<[^>]*>/g,"").trim();out+="**"+sec.label+"**\n"+(txt||"(未填写)")+"\n\n";});});const box=document.getElementById("export-box");box.style.display="block";document.getElementById("export-text").value=out;box.scrollIntoView({behavior:"smooth"});}
+function copyExport(){const ta=document.getElementById("export-text");ta.select();document.execCommand("copy");alert("已复制！可直接粘贴给 Claude。");}
+renderCards();updateProgress();
+</script>
+</body>
+</html>
